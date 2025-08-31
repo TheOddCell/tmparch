@@ -7,7 +7,7 @@ SFS="/var/lib/tmplinux/tmparch.sfs"
 TMP=$(mktemp -d /tmp/container-XXXX)
 trap 'rm -rf "$TMP"' EXIT
 
-rm /var/lib/tmp*.sfs||true # removing all tmp* from before unification into tmplinux
+rm /var/lib/tmp*.sfs 2>/dev/null||true # removing all tmp* from before unification into tmplinux
 [[ -f $SFS ]] || {
   mkdir -p "$COPY"
   pacstrap "$COPY" base base-devel "$@"
