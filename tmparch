@@ -2,11 +2,12 @@
 set -e
 ((EUID==0)) || { echo "run as root"; exit 1; }
 
-COPY="/var/lib/tmparch"
-SFS="/var/lib/tmparch.sfs"
+COPY="/var/lib/tmplinux/tmparch"
+SFS="/var/lib/tmplinux/tmparch.sfs"
 TMP=$(mktemp -d /tmp/container-XXXX)
 trap 'rm -rf "$TMP"' EXIT
 
+rm /var/lib/tmp*.sfs||true # removing all tmp* from before unification into tmplinux
 [[ -f $SFS ]] || {
   mkdir -p "$COPY"
   pacstrap "$COPY" base base-devel "$@"
