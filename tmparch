@@ -17,4 +17,6 @@ rm /var/lib/tmp*.sfs 2>/dev/null||true # removing all tmp* from before unificati
 }
 
 unsquashfs -f -d "$TMP" "$SFS"
+basename "$TMP" > /run/tmparch
 systemd-nspawn -D "$TMP" --boot --network-veth -E TERM=linux
+rm /run/tmparch
