@@ -9,7 +9,7 @@ trap 'rm -rf "$TMP"' EXIT
 
 [[ -f $SFS ]] || {
   mkdir -p "$COPY"
-  pacstrap "$COPY" base base-devel
+  pacstrap "$COPY" base base-devel "$@"
   passwd --root "$COPY" -d root
   mksquashfs "$COPY" "$SFS" -comp zstd
   rm -rf "$COPY"
