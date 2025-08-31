@@ -1,2 +1,2 @@
 # tmparch
-Temporary Arch Linux.
+Part of the tmplinux suite. Temporary Arch Linux.
