@@ -1,20 +1,24 @@
 #!/bin/bash
 set -e
-trap 'rm -rf "$TMPROOT"' EXIT
+((EUID==0)) || { echo "run as root"; exit 1; }
 
-if [ "$(id -u)" -ne 0 ]; then
-    echo "Please run as root."
-    exit 1
-fi
+SFS="/var/lib/tmparch.sfs"
+TMP=$(mktemp -d /tmp/container-XXXX)
+trap 'umount -l "$TMP/rootfs" 2>/dev/null; rm -rf "$TMP"' EXIT
 
-COPYROOT="/var/lib/tmparch/"
-if [ ! -d "/var/lib/tmparch/" ]; then
-  echo "Running first time setup..."
-  mkdir -p "$COPYROOT"
-  pacstrap "$COPYROOT" base base-devel
-  passwd --root "$COPYROOT" -d root
-fi
+# first-time setup
+[[ -f $SFS ]] || {
+  mkdir -p /var/lib/tmparch
+  pacstrap /var/lib/tmparch base base-devel
+  passwd --root /var/lib/tmparch -d root
+  mksquashfs /var/lib/tmparch "$SFS" -comp zstd -Xdict-size 100%
+  rm -rf /var/lib/tmparch
+}
 
-TMPROOT=$(mktemp -d /tmp/container-XXXX)
-cp "$COPYROOT/." "$TMPROOT" -a
-systemd-nspawn -D "$TMPROOT" --boot --network-veth
+# overlay mount
+mkdir -p "$TMP/rootfs" "$TMP/upper" "$TMP/work" "$TMP/squash"
+mount -o loop,ro "$SFS" "$TMP/squash"
+mount -t overlay overlay -o lowerdir="$TMP/squash",upperdir="$TMP/upper",workdir="$TMP/work" "$TMP/rootfs"
+
+systemd-nspawn -D "$TMP/rootfs" --boot --network-veth
+
