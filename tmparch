@@ -16,5 +16,4 @@ trap 'rm -rf "$TMP"' EXIT
 }
 
 unsquashfs -f -d "$TMP" "$SFS"
-systemd-nspawn -D "$TMP" --boot --network-veth
-
+systemd-nspawn -D "$TMP" --boot --network-veth -E TERM=linux
