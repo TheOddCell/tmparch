@@ -2,23 +2,19 @@
 set -e
 ((EUID==0)) || { echo "run as root"; exit 1; }
 
+COPY="/var/lib/tmparch"
 SFS="/var/lib/tmparch.sfs"
 TMP=$(mktemp -d /tmp/container-XXXX)
-trap 'umount -l "$TMP/rootfs" 2>/dev/null; rm -rf "$TMP"' EXIT
+trap 'rm -rf "$TMP"' EXIT
 
-# first-time setup
 [[ -f $SFS ]] || {
-  mkdir -p /var/lib/tmparch
-  pacstrap /var/lib/tmparch base base-devel
-  passwd --root /var/lib/tmparch -d root
-  mksquashfs /var/lib/tmparch "$SFS" -comp zstd
-  rm -rf /var/lib/tmparch
+  mkdir -p "$COPY"
+  pacstrap "$COPY" base base-devel
+  passwd --root "$COPY" -d root
+  mksquashfs "$COPY" "$SFS" -comp zstd
+  rm -rf "$COPY"
 }
 
-# overlay mount
-mkdir -p "$TMP/rootfs" "$TMP/upper" "$TMP/work" "$TMP/squash"
-mount -o loop,ro "$SFS" "$TMP/squash"
-mount -t overlay overlay -o lowerdir="$TMP/squash",upperdir="$TMP/upper",workdir="$TMP/work" "$TMP/rootfs"
-
-systemd-nspawn -D "$TMP/rootfs" --boot --network-veth
+unsquashfs -f -d "$TMP" "$SFS"
+systemd-nspawn -D "$TMP" --boot --network-veth
 
