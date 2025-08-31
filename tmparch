@@ -11,7 +11,7 @@ trap 'umount -l "$TMP/rootfs" 2>/dev/null; rm -rf "$TMP"' EXIT
   mkdir -p /var/lib/tmparch
   pacstrap /var/lib/tmparch base base-devel
   passwd --root /var/lib/tmparch -d root
-  mksquashfs /var/lib/tmparch "$SFS" -comp zstd -Xdict-size 100%
+  mksquashfs /var/lib/tmparch "$SFS" -comp zstd
   rm -rf /var/lib/tmparch
 }
 
