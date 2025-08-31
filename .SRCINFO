@@ -1,0 +1,16 @@
+pkgbase = tmparch
+	pkgdesc = Temporary Arch Linux
+	pkgver = 1.0.0
+	pkgrel = 1
+	url = https://github.com/TheOddCell/tmparch
+	arch = any
+	license = MIT
+	depends = bash
+	depends = arch-install-scripts
+	depends = shadow
+	depends = util-linux
+	depends = systemd
+	source = tmparch
+	sha256sums = SKIP
+
+pkgname = tmparch
